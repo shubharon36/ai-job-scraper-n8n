@@ -1,0 +1,350 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c317a91d-8586-4bf5-b97e-5e5b910bef67",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://jsearch.p.rapidapi.com/search?query=react&country=in&language=en&page=1&num_pages=5&employment_types=FULLTIME%2C%20INTERN&job_requirements=under_3_years_experience%2C%20no_experience",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-RapidAPI-Key\t",
+              "value": "b24dd615dfmsh79d03861c8df5fbp1eeea6jsna1576883590e"
+            },
+            {
+              "name": "X-RapidAPI-Host\t",
+              "value": "jsearch.p.rapidapi.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "6e225045-17e1-43bd-bb65-38e5bdcf9ebc",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "id": "97a3478a-3f00-4c41-8f6e-be173c30cae0",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0b92eb0a-ccaf-408e-9031-3c821fcfb045",
+              "name": "job_title",
+              "value": "={{ $json.job_title }}",
+              "type": "string"
+            },
+            {
+              "id": "a97a9865-b866-4822-a4db-bb54c51a4690",
+              "name": "employer_name",
+              "value": "={{ $json.employer_name }}",
+              "type": "string"
+            },
+            {
+              "id": "1e1a807c-9433-4b28-a7e6-a138e39b309e",
+              "name": "job_city",
+              "value": "={{ $json.job_city }}",
+              "type": "string"
+            },
+            {
+              "id": "f3239e56-3a76-4ec9-89f8-e7a59c132eb3",
+              "name": "job_employment_types",
+              "value": "={{ $json.job_employment_types }}",
+              "type": "array"
+            },
+            {
+              "id": "5a0a6c03-8b2e-43da-a5df-f028b215c5a8",
+              "name": "job_description",
+              "value": "={{ $json.job_description }}",
+              "type": "string"
+            },
+            {
+              "id": "dbcd297c-17ff-488d-b6ae-ff7aaed8c0fa",
+              "name": "job_apply_link",
+              "value": "={{ $json.job_apply_link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        660,
+        0
+      ],
+      "id": "9a99b90b-5206-471f-9ae5-5d8befc2e63f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarise this in 3-4 bullet points:{{ $json.job_description }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        980,
+        0
+      ],
+      "id": "8b92b10a-9b27-4bb6-8d5c-e8f9a8d7430f",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        220
+      ],
+      "id": "3601ec9e-b6bb-4d23-8d7b-0b103a52ae8a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "nNIFK3fSm4zxkx1G",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Ge6oYMd6NT6OB1jfW0NRUHUvwwGJWjSy7BNACZT6ZhU",
+          "mode": "list",
+          "cachedResultName": "Job Record",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ge6oYMd6NT6OB1jfW0NRUHUvwwGJWjSy7BNACZT6ZhU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ge6oYMd6NT6OB1jfW0NRUHUvwwGJWjSy7BNACZT6ZhU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $('Edit Fields').item.json.job_title }}",
+            "Company": "={{ $('Edit Fields').item.json.employer_name }}",
+            "Location": "={{ $('Edit Fields').item.json.job_city }}",
+            "Type": "={{ $('Edit Fields').item.json.job_employment_types }}",
+            "Summary": "={{ $json.text }}",
+            "URL": "={{ $('Edit Fields').item.json.job_apply_link }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Experience ",
+              "displayName": "Experience ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1460,
+        0
+      ],
+      "id": "b42a98ca-e764-4b33-83b7-f198e4eebf61",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AsRfMXSsliNvXlRv",
+          "name": "Google Sheets account 4"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "20a31aaa-3f2a-4d0b-85d2-6ca4b7d6ff45",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb6de27d3ac3f06bbc74d7812e30c23e8e63b64a020a8bd082e1609a06797690"
+  },
+  "id": "pIdfnryku6f337M0",
+  "tags": []
+}
