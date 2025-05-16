@@ -3,6 +3,7 @@ Automated job scraper with AI summary using n8n, Gemini, and Google Sheets
 
 
 This n8n workflow scrapes job listings (React, DevOps, AI/ML, etc.) from RapidAPI, summarizes them using Google Gemini, and saves results to Google Sheets.
+![image](https://github.com/user-attachments/assets/47977017-d210-43a1-8ce9-071b5db406db)
 
 ## Features:
 - Scrapes latest jobs every 24 hrs
